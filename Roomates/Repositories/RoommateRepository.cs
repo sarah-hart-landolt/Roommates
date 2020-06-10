@@ -101,13 +101,15 @@ namespace Roommates.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT FirstName, LastName, RentPortion, MoveInDate, RoomId FROM Roommate WHERE Id = @id";
+                    cmd.CommandText = @"SELECT FirstName, LastName, RentPortion, MoveInDate, Name, MaxOccupancy, RoomId 
+                                        FROM Roommate rm
+                                        JOIN Room room ON room.Id = rm.RoomId
+                                        WHERE rm.Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     Roommate roommate = null;
 
-                    // If we only expect a single row back from the database, we don't need a while loop.
                     if (reader.Read())
                     {
                         roommate = new Roommate
@@ -117,7 +119,12 @@ namespace Roommates.Repositories
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
                             RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
                             MoveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
-                            Room = null
+                            Room = new Room
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("RoomId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"))
+                            }
                         };
                     }
 

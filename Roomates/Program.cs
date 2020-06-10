@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Roommates.Models;
 using Roommates.Repositories;
@@ -30,6 +31,7 @@ namespace Roommates
             //}
 
             RoommateRepository roommateRepo = new RoommateRepository(CONNECTION_STRING);
+            ChoreRepository choreRepo = new ChoreRepository(CONNECTION_STRING);
 
             //Console.WriteLine("Getting All Rooms:");
             //Console.WriteLine();
@@ -86,7 +88,7 @@ namespace Roommates
                         break;
 
                     case 3:
-                        Console.Write($"Enter new Id of Room you want to delete: ");
+                        Console.Write($"Enter Id of a room you want to delete: ");
                         int roomId = Int32.Parse(Console.ReadLine());
 
                         roomRepo.Delete(roomId);
@@ -95,7 +97,7 @@ namespace Roommates
                         Console.WriteLine($"Deleted the room with id {roomId}");
                         break;
                     case 4:
-                        Console.Write($"Enter the id of the room you'd like to update: ");
+                        Console.Write($"Enter the id of the room you'd like to edit: ");
                         int UpdatedRoomId = Int32.Parse(Console.ReadLine());
                         var selectedRoom = roomRepo.GetById(UpdatedRoomId);
 
@@ -146,7 +148,7 @@ namespace Roommates
                         Console.WriteLine($"Enter {newFirstName}'s room id to rent from the list");
                         foreach (Room room in allRoomsAgain)
                         {
-                            Console.WriteLine($"{room.Id} {room.Name}:");
+                            Console.WriteLine($"Room Id: {room.Id} Room : {room.Name}:");
 
                         }
                         Console.Write($"> ");
@@ -167,7 +169,95 @@ namespace Roommates
                         roommateRepo.Insert(AddedRoommate);
 
                         Console.WriteLine("-------------------------------");
-                        Console.WriteLine($"Added the new Roommate with id {AddedRoommate.FirstName}{AddedRoommate.LastName}");
+                        Console.WriteLine($"Added the new Roommate {AddedRoommate.FirstName}{AddedRoommate.LastName}");
+                        break;
+
+                    case 7: //Edit a roommate's info 
+
+                        List<Roommate> allRoomies = roommateRepo.GetAll();
+                        foreach (Roommate roommate in allRoomies)
+                        {
+
+                            Console.WriteLine($"Id: {roommate.Id} {roommate.FirstName} {roommate.LastName}");
+
+                        }
+                       
+                        Console.Write($"Enter the id (listed above) of the roommate you'd like to edit: ");
+                        int UpdatedRoommateId = Int32.Parse(Console.ReadLine());
+                        var selectedRoommate = roommateRepo.GetById(UpdatedRoommateId);
+
+                        Console.Write($"Enter a first name for {selectedRoommate.FirstName} to edit the info or type in {selectedRoommate.FirstName} to keep it the same: ");
+                        string UpdatedFirstName = Console.ReadLine();
+
+                        Console.Write($"Enter a new last name instead of {selectedRoommate.LastName} or type in {selectedRoommate.LastName} to keep it the same");
+                        string UpdatedLastName = Console.ReadLine();
+
+                        Console.Write($"Enter a new rent share percentage (a number 0-100) or type in the current share ({selectedRoommate.RentPortion}) to remain the same: ");
+                        int UpdateRentPortion = Int32.Parse(Console.ReadLine());
+
+                        DateTime EditMoveInDate = DateTime.Now;
+
+                        List<Room> allRoomsEncore = roomRepo.GetAll();
+
+                        Console.WriteLine($"Enter a new room id to rent from the list below");
+                        foreach (Room room in allRoomsEncore)
+                        {
+                            Console.WriteLine($"Room Id: {room.Id} Room : {room.Name}:");
+
+                        }
+                        Console.Write($"> ");
+
+                        int EditRoomId = Int32.Parse(Console.ReadLine());
+                        Room updatedRoomforRoommate = roomRepo.GetById(EditRoomId);
+
+                        Roommate UpdatedRoommate = new Roommate
+                        {
+                            Id = UpdatedRoommateId,
+                            FirstName = UpdatedFirstName,
+                            LastName = UpdatedLastName,
+                            RentPortion= UpdateRentPortion,
+                            MoveInDate = EditMoveInDate,
+                            Room= updatedRoomforRoommate
+
+                        };
+
+                        roommateRepo.Update(UpdatedRoommate);
+
+                        Console.WriteLine("-------------------------------");
+                        Console.WriteLine($"Updated {UpdatedRoommate.FirstName}{UpdatedRoommate.LastName}'s info");
+                        break;
+
+                    case 8: //delete a roommate
+                        Console.Write($"Enter Id of a roommate you want to delete: ");
+                        int roommateId = Int32.Parse(Console.ReadLine());
+
+                        roomRepo.Delete(roommateId);
+
+                        Console.WriteLine("-------------------------------");
+                        Console.WriteLine($"Deleted the roommate with id {roommateId}");
+                        break;
+
+                   case 9: //List all chores
+                        List<Chore> allChores = choreRepo.GetAll();
+                        foreach (Chore chore in allChores)
+                        {
+
+                            Console.WriteLine(@$"Id: 
+{chore.Id}
+Name: {chore.Name}");
+                        }
+                        break;
+                    case 10:
+                        Console.Write($"Enter the name of the new chore to add: ");
+                        string newChoreName = Console.ReadLine();
+
+                        Chore AddedChore = new Chore
+                        {
+                            Name = newChoreName,
+                        };
+                        choreRepo.Insert(AddedChore);
+                        Console.WriteLine("-------------------------------");
+                        Console.WriteLine($"Added the new chore '{AddedChore.Name}' with id {AddedChore.Id}");
                         break;
                 }
             }
@@ -177,7 +267,7 @@ namespace Roommates
         {
             int selection = -1;
 
-            while (selection < 0 || selection > 8)
+            while (selection < 0 || selection > 10)
             {
                 Console.WriteLine(@"
                 Welcome to Roommates!
@@ -191,6 +281,8 @@ namespace Roommates
                 6 Add a roommate
                 7 Edit a roommate
                 8 Delete a roommate
+                9 List all chores
+                10 Add a chore
                 0 Exit
                 ");
 

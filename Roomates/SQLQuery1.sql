@@ -47,6 +47,8 @@ CREATE TABLE RoommateChore (
     CONSTRAINT FK_RoommateChore_Chore FOREIGN KEY(ChoreId) REFERENCES Chore(Id)
 );
 
+SELECT Id, Name FROM Chore
+
 
 
 INSERT INTO Room 
